@@ -1,0 +1,1 @@
+console.log('Please run using `yarn test` or `npm test`');

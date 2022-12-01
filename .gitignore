@@ -1,0 +1,9 @@
+# Ignore a blackhole
+node_modules/
+.vs/
+
+# Ignore package locks
+package-lock.json
+
+# Ignore .log files
+*.log
