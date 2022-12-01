@@ -19,8 +19,8 @@ create table bohemia.employee
 "firstname" varchar(255) not null,
 "lastname" varchar(255) not null,
 "addressfk" bigint not null constraint employee_address_addressId_fk references bohemia.address,
-email varchar(255) not null,
-username varchar(255) not null,
+email varchar(255) not null constraint studio_email_unique unique check (email ~* '^.+@.+\..+$'),
+username varchar(255) not null constraint studio_username_unique unique,
 phone int not null,
 "alternativePhone" int null,
 "currentproject" varchar(255) not null,
@@ -50,7 +50,7 @@ create table bohemia.studio
 "studioHead" varchar(255) not null,
 phone int not null,
 "alternativePhone" int null,
-email varchar(255) not null,
+email varchar(255) not null constraint studio_email_unique unique check (email ~* '^.+@.+\..+$'),
 platform varchar(255) not null
 );
 
