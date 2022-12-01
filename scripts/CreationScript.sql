@@ -2,7 +2,8 @@ create schema if not exists bohemia;
 
 drop sequence if exists address_seq;
 create sequence address_seq start 1 increment 1;
-create table if not exists bohemia.address
+drop table if exists bohemia.address;
+create table bohemia.address
 (
 "addressId" bigserial not null primary key,
 "addressLine" varchar(255) not null,
@@ -11,7 +12,8 @@ create table if not exists bohemia.address
 
 drop sequence if exists employee_seq;
 create sequence employee_seq start 1 increment 1;
-create table if not exists bohemia.employee
+drop table if exists bohemia.employee;
+create table bohemia.employee
 (
 "employeeId" bigserial not null primary key,
 "firstName" varchar(255) not null,
@@ -27,7 +29,8 @@ phone int not null,
 
 drop sequence if exists project_seq;
 create sequence project_seq start 1 increment 1;
-create table if not exists bohemia.project
+drop table if exists bohemia.project;
+create table bohemia.project
 (
 "projectId" bigserial not null primary key,
 "projectName" varchar(255) not null,
@@ -38,7 +41,8 @@ genre varchar(100) null
 
 drop sequence if exists studio_seq;
 create sequence studio_seq start 1 increment 1;
-create table if not exists bohemia.studio
+drop table if exists bohemia.studio;
+create table bohemia.studio
 (
 "studioId" bigserial not null primary key,
 "studioName" varchar(255) not null,
@@ -52,7 +56,8 @@ platform varchar(100) not null
 
 drop sequence if exists contract_seq;
 create sequence contract_seq start 1 increment 1;
-create table if not exists bohemia."employeeContract"
+drop table if exists bohemia."employeeContract";
+create table bohemia."employeeContract"
 (
 "contractId" bigserial not null primary key,
 "employeeFK" bigint not null constraint "employeeContract_employee_employeeId_fk" references bohemia.employee,
@@ -65,7 +70,8 @@ status varchar(50) not null,
 
 drop sequence if exists assignment_seq;
 create sequence assignment_seq start 1 increment 1;
-create table if not exists bohemia."projectAssignment"
+drop table if exists bohemia."projectAssignment";
+create table bohemia."projectAssignment"
 (
 "assignmentId" bigserial not null primary key,
 "projectFK" bigint not null constraint "projectAssignment_project_projectId_fk" references bohemia.project,
