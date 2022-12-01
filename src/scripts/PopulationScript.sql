@@ -181,9 +181,56 @@ values
     (nextval('project_seq'), 'Pillowings', 'Arcade-style lightgun game set within a mansion filled with monsters based on a certain Mr. Flanders.', 'PC', null);
 
 /* Insert data into the bohemia.address table below */
-
+insert into bohemia.address
+    ("addressId", "addressLine", postcode)
+values
+    (nextval('address_seq'), '12 Main Street, Canterbury', 'CT1 1AA');
+insert into bohemia.address
+    ("addressId", "addressLine", postcode)
+values
+    (nextval('address_seq'), '2 Central Avenue, London', 'W1 1CJ');
+insert into bohemia.address
+    ("addressId", "addressLine", postcode)
+values
+    (nextval('address_seq'), '192 Bridge Road, London', 'SE2 2PQ');
+insert into bohemia.address
+    ("addressId", "addressLine", postcode)
+values
+    (nextval('address_seq'), '19 The Lanes, Portsmouth', 'PO1 1BA');
+insert into bohemia.address
+    ("addressId", "addressLine", postcode)
+values
+    (nextval('address_seq'), '55 Barnham Road, Gilford', 'BT63 6QU');
+insert into bohemia.address
+    ("addressId", "addressLine", postcode)
+values
+    (nextval('address_seq'), 'Ela Mill, Cort St, Bury', 'BL9 7BW');
 
 /* Insert data into the bohemia.studio table below */
+insert into bohemia.studio
+    ("studioId", "studioName", description, platform, "studioHead", "addressFK", phone, "alternatePhone", email)
+values
+    (nextval('studio_seq'), 'Fuzzy Sheep Studios', 'Specialises in porting games from Bohemia Group studios to Android and iOS platforms including smartphones and tablets.', 'Mobile', 'William Butcher', 1, '1227555666', '07700 900445', 'will.butcher@fuzzysheep.com');
+insert into bohemia.studio
+    ("studioId", "studioName", description, platform, "studioHead", "addressFK", phone, "alternatePhone", email)
+values
+    (nextval('studio_seq'), 'Ego Applications', 'A software studio that became famous for Mood, the grandfather of First Person Shooter games, released in the 1990s.', 'PC', 'Annie January', 2, '8006133589', '07700 900678', 'annie.january@egoapps.co.uk');
+insert into bohemia.studio
+    ("studioId", "studioName", description, platform, "studioHead", "addressFK", phone, "alternatePhone", email)
+values
+    (nextval('studio_seq'), 'Dattebayo!', 'A UK based developer who focuses on translating and releasing Japanese anime-based videogames for the western audience.', 'Console', 'Ashleigh Cohen', 3, '1614960267', '07700 900321', 'ashleigh.cohan@dattebayo.com');
+insert into bohemia.studio
+    ("studioId", "studioName", description, platform, "studioHead", "addressFK", phone, "alternatePhone", email)
+values
+    (nextval('studio_seq'), 'DojoKun', 'Known for their creative sandbox games that use voxels instead of polygons with randomly generated environments.', 'PC', 'Reggie Franklin', 4, '2011151612', '07700 900175', 'reggie.franklin@dojokun.net');
+insert into bohemia.studio
+    ("studioId", "studioName", description, platform, "studioHead", "addressFK", phone, "alternatePhone", email)
+values
+    (nextval('studio_seq'), 'Big Zebra Solutions', 'Recently secured funding from Sony to create a AAA 3rd person adventure game. Their previous titles were minimalist art-as-games experiences.', 'Console', 'Maggie Shaw', 5, '1483960457', '07700 900667', 'maggie.shaw@bigzebrasolutions.com');
+insert into bohemia.studio
+    ("studioId", "studioName", description, platform, "studioHead", "addressFK", phone, "alternatePhone", email)
+values
+    (nextval('studio_seq'), 'Unhinged', 'A small team who create games using assets from 3D model repositories. Unhinged concentrate mainly on games that make use of their in-house Eagle Engine.', 'PC', 'Yasmin Singh', 6, '1614960928', '07700 900299', 'yasmin.singh@unhinged.co.uk'
 
 
 /* Insert data into the bohemia.employee table below */

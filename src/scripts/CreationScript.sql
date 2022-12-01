@@ -43,7 +43,7 @@ create table if not exists bohemia.studio
 "studioId" bigserial not null primary key,
 "studioName" varchar(255) not null,
 "addressFK" bigint not null constraint studio_address_addressId_fk references bohemia.address,
-"studioHead" bigint not null constraint studio_employee_employeeId_fk references bohemia.employee,
+"studioHead" varchar(255) not null,
 phone int not null,
 "alternativePhone" int null,
 email varchar(255) not null,
