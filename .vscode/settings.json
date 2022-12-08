@@ -1,29 +1,24 @@
 {
-    "cSpell.words": [
-        "bigserial",
-        "Danon",
-        "Earthendion",
-        "Etheral",
-        "extraveganza",
-        "Feng",
-        "Kyrule",
-        "Leemar",
-        "lightgun",
-        "minigames",
-        "MMORPG",
-        "ocenas",
-        "osterich",
-        "Pillowings",
-        "Quadroe",
-        "Recognised",
-        "Royale",
-        "RPWG",
-        "Shui",
-        "simuators",
-        "teambased",
-        "Tinmann",
-        "Tsumani",
-        "Wargrounds",
-        "Yasai"
-    ]
+  "prettier.configPath": ".prettierrc",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true,
+    "source.fixAll.stylelint": true,
+    "source.fixAll.prettier": true
+  },
+  "eslint.validate": [
+    "javascript",
+    "typescript",
+    "json"
+  ],
+  "cSpell.words": [
+    "crossworld",
+    "cwls",
+    "Dynamis",
+    "headpats",
+    "linkshell",
+    "Loporrit",
+    "Tweetingway",
+    "xivapi"
+  ]
 }
