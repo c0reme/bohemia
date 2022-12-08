@@ -3,21 +3,20 @@
   "name": "bohemia",
   "version": "1.0.0",
   "description": "A student project for SQL database management using PostgreSQL.",
-  "main": "index.js",
   "repository": "https://github.com/c0reme/bohemia.git",
-  "author": "Cameron <cameron.huntley87@gmail.com>",
+  "author": "Cammy <contact@cammy.pw>",
   "license": "MIT",
   "scripts": {
     "clean": "rimraf data node_modules/.cache",
-    "format": "prettier --write \"scripts/**/*.{js}\"",
+    "test": "vitest --coverage",
     "update": "yarn upgrade-interactive"
   },
   "dependencies": {
     "pg": "^8.8.0"
   },
   "devDependencies": {
-    "prettier": "^2.8.0",
-    "pretty-quick": "^3.1.3",
-    "rimraf": "^3.0.2"
+    "@vitest/coverage-c8": "^0.25.5",
+    "rimraf": "^3.0.2",
+    "vitest": "^0.25.5"
   }
 }
