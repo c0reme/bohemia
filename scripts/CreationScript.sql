@@ -4,25 +4,25 @@ drop sequence if exists address_seq;
 create sequence address_seq start 1 increment 1;
 create table if not exists bohemia.address
 (
-"addressid" bigserial not null primary key,
-"addressline" varchar(255) not null,
-"postcode" varchar(255) not null
+"addressId" bigserial not null primary key,
+"addressLine" varchar(255) not null,
+"postCode" varchar(255) not null
 );
 
 drop sequence if exists employee_seq;
 create sequence employee_seq start 1 increment 1;
 create table if not exists bohemia.employee
 (
-"employeeid" bigserial not null primary key,
-"firstname" varchar(255) not null,
-"lastname" varchar(255) not null,
-"addressfk" bigint not null constraint employee_address_addressId_fk references bohemia.address,
+"employeeId" bigserial not null primary key,
+"firstName" varchar(255) not null,
+"lastName" varchar(255) not null,
+"addressFK" bigint not null constraint employee_address_addressId_fk references bohemia.address,
 email varchar(255) not null,
 username varchar(255) not null,
 phone int not null,
 "alternativePhone" int null,
-"currentproject" varchar(255) not null,
-"pastprojects" varchar(255) not null
+"currentProject" varchar(255) not null,
+"pastProjects" varchar(255) not null
 );
 
 drop sequence if exists project_seq;
@@ -43,11 +43,11 @@ create table if not exists bohemia.studio
 "studioId" bigserial not null primary key,
 "studioName" varchar(255) not null,
 "addressFK" bigint not null constraint studio_address_addressId_fk references bohemia.address,
-"studioHead" bigint not null constraint studio_employee_employeeId_fk references bohemia.employee,
+"studioHeadFK" bigint not null constraint studio_employee_employeeId_fk references bohemia.employee,
 phone int not null,
 "alternativePhone" int null,
 email varchar(255) not null,
-platform varchar(255) not null
+platform varchar(100) not null
 );
 
 drop sequence if exists contract_seq;

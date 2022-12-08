@@ -1,6 +1,12 @@
 # Ignore a blackhole
 node_modules/
 .vs/
+coverage/
+
+# Ignore scripts
+*.sh
+*.bat
+*.sql
 
 # Ignore package locks
 package-lock.json

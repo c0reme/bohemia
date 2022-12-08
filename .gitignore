@@ -1,6 +1,7 @@
-# Ignore a blackhole
+# Ignore the blackhole
 node_modules/
 .vs/
+coverage/
 
 # Ignore package locks
 package-lock.json
