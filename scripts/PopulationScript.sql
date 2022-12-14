@@ -46,12 +46,12 @@ INSERT INTO bohemia.project ("projectName", description, platform, genre) VALUES
 INSERT INTO bohemia.project ("projectName", description, platform, genre) VALUES ('Pillowings', 'Arcade-style lightgun game set within a mansion filled with monsters based on a certain Mr. Flanders.', 'PC', null);
 
 /* Insert data into the bohemia.address table below */
-INSERT INTO bohemia.address ("addressLine", postcode) VALUES ('12 Main Street, Canterbury', 'CT1 1AA'); /* studio address */
-INSERT INTO bohemia.address ("addressLine", postcode) VALUES ('2 Central Avenue, London', 'W1 1CJ');
-INSERT INTO bohemia.address ("addressLine", postcode) VALUES ('192 Bridge Road, London', 'SE2 2PQ');
-INSERT INTO bohemia.address ("addressLine", postcode) VALUES ('19 The Lanes, Portsmouth', 'PO1 1BA');
-INSERT INTO bohemia.address ("addressLine", postcode) VALUES ('55 Barnham Road, Gilford', 'BT63 6QU');
-INSERT INTO bohemia.address ("addressLine", postcode) VALUES ('Ela Mill, Cort St, Bury', 'BL9 7BW');
+INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('12 Main Street, Canterbury', 'CT1 1AA'); /* studio address */
+INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('2 Central Avenue, London', 'W1 1CJ');
+INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('192 Bridge Road, London', 'SE2 2PQ');
+INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('19 The Lanes, Portsmouth', 'PO1 1BA');
+INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('55 Barnham Road, Gilford', 'BT63 6QU');
+INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('Ela Mill, Cort St, Bury', 'BL9 7BW');
 
 /* Insert data into the bohemia.studio table below */
 INSERT INTO bohemia.studio("studioName", description, platform, "studioHead", "addressFK", phone, "alternatePhone", email) VALUES ();

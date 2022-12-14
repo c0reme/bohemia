@@ -233,12 +233,28 @@ describe(config.host, () => {
       expect(res.command).toBe('SELECT');
       expect(res.rowCount).toBe(45);
 
-        res.rows.forEach((row) => {
-            expect(row).toHaveProperty('projectName');
-            expect(row).toHaveProperty('description');
-            expect(row).toHaveProperty('platform');
-            expect(row).toHaveProperty('genre');
-        });
+      res.rows.forEach((row) => {
+        expect(row).toHaveProperty('projectName');
+        expect(row).toHaveProperty('description');
+        expect(row).toHaveProperty('platform');
+        expect(row).toHaveProperty('genre');
+      });
+    });
+
+    test('INTO bohemia.address', async () => {
+      await client.query([
+        `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('12 Main Street, Canterbury', 'CT1 1AA')`,
+        `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('2 Central Avenue, London', 'W1 1CJ')`,
+        `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('192 Bridge Road, London', 'SE2 2PQ')`,
+        `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('19 The Lanes, Portsmouth', 'PO1 1BA')`,
+        `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('55 Barnham Road, Gilford', 'BT63 6QU')`,
+        `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('Ela Mill, Cort St, Bury', 'BL9 7BW')`
+      ].join(';'));
+
+      const res = await client.query('SELECT * FROM bohemia.address');
+
+      expect(res.command).toBe('SELECT');
+      expect(res.rowCount).toBe(6);
     });
   });
 });
