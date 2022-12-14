@@ -4,7 +4,7 @@ import config from '../config';
 
 describe(config.host, () => {
   test('can connect to postgres', async () => {
-    const client = new Client(config);
+    const client = new Client({ ...config, ssl: true });
     await client.connect();
     await client.end();
   });
@@ -232,6 +232,13 @@ describe(config.host, () => {
 
       expect(res.command).toBe('SELECT');
       expect(res.rowCount).toBe(45);
+
+        res.rows.forEach((row) => {
+            expect(row).toHaveProperty('projectName');
+            expect(row).toHaveProperty('description');
+            expect(row).toHaveProperty('platform');
+            expect(row).toHaveProperty('genre');
+        });
     });
   });
 });
