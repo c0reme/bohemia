@@ -8,3 +8,6 @@ package-lock.json
 
 # Ignore .log files
 *.log
+
+# Ignore postgres login credentials
+config.js
