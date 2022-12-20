@@ -74,7 +74,7 @@ describe(config.host, () => {
           '"firstName" varchar(255) not null',
           '"lastName" varchar(255) not null',
           '"addressFK" bigint not null constraint employee_address_addressId_fk references bohemia.address',
-          "email varchar(255) not null constraint employee_email_is_email check (email like '%_@_%')",
+          'email varchar(255) not null',
           'phone int not null',
           '"alternatePhone" int not null',
           '"currentProject" varchar(255) not null',
@@ -116,12 +116,13 @@ describe(config.host, () => {
         `CREATE TABLE bohemia.studio (${[
           '"studioId" bigserial not null primary key',
           '"studioName" varchar(255) not null',
-          '"addressFK" bigint not null constraint studio_address_addressId_fk references bohemia.address',
+          'description varchar(1000) not null',
+          'platform varchar(100) not null',
           '"studioHead" varchar(255) not null',
-          'phone int not null',
-          '"alternatePhone" int not null',
-          "email varchar(255) not null constraint studio_email_is_email check (email like '%_@_%')",
-          'platform varchar(100) not null'
+          '"addressFK" bigint not null constraint studio_address_addressId_fk references bohemia.address',
+          'phone bigint not null',
+          '"alternatePhone" bigint not null',
+          'email varchar(255) not null'          
         ].join(',')});`
       );
 
@@ -242,19 +243,49 @@ describe(config.host, () => {
     });
 
     test('INTO bohemia.address', async () => {
-      await client.query([
-        `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('12 Main Street, Canterbury', 'CT1 1AA')`,
-        `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('2 Central Avenue, London', 'W1 1CJ')`,
-        `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('192 Bridge Road, London', 'SE2 2PQ')`,
-        `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('19 The Lanes, Portsmouth', 'PO1 1BA')`,
-        `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('55 Barnham Road, Gilford', 'BT63 6QU')`,
-        `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('Ela Mill, Cort St, Bury', 'BL9 7BW')`
-      ].join(';'));
+      await client.query(
+        [
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('12 Main Street, Canterbury', 'CT1 1AA')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('2 Central Avenue, London', 'W1 1CJ')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('192 Bridge Road, London', 'SE2 2PQ')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('19 The Lanes, Portsmouth', 'PO1 1BA')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('55 Barnham Road, Gilford', 'BT63 6QU')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('Ela Mill, Cort St, Bury', 'BL9 7BW')`
+        ].join(';')
+      );
 
       const res = await client.query('SELECT * FROM bohemia.address');
 
       expect(res.command).toBe('SELECT');
       expect(res.rowCount).toBe(6);
+    });
+
+    test('INTO bohemia.studio', async () => {
+      await client.query(
+        [
+          `INSERT INTO bohemia.studio("studioName", description, platform, "studioHead", "addressFK", phone, "alternatePhone", email) VALUES ('Fuzzy Sheep Studios', 'Specialises in porting games from Bohemia Group studios to Android and iOS platforms including smartphones and tablets.', 'Mobile', 'William Butcher', 1, 1227555666, 07700900445, 'will.butcher@fuzzysheep.com')`,
+          `INSERT INTO bohemia.studio("studioName", description, platform, "studioHead", "addressFK", phone, "alternatePhone", email) VALUES ('Ego Applications', 'A software studio that became famous for Mood, the grandfather of First Person Shooter games, released in the 1990s.', 'PC', 'Annie January', 2, 8006133589, 07700900678, 'annie.january@egoapps.co.uk' )`,
+          `INSERT INTO bohemia.studio("studioName", description, platform, "studioHead", "addressFK", phone, "alternatePhone", email) VALUES ('Dattebayo!', 'A UK based developer who focuses on translating and releasing Japanese anime-based videogames for the western audience.' , 'Console', 'Ashleigh Cohen', 3, 1614960267, 07700900321, 'ashleigh.cohan@dattebayo.com')`,
+          `INSERT INTO bohemia.studio("studioName", description, platform, "studioHead", "addressFK", phone, "alternatePhone", email) VALUES ('DojoKun', 'Known for their creative sandbox games that use voxels instead of polygons with randomly generated environments.', 'PC', 'Reggie Franklin', 4, 2011151612, 07700900175, 'reggie.franklin@dojokun.net')`,
+          `INSERT INTO bohemia.studio("studioName", description, platform, "studioHead", "addressFK", phone, "alternatePhone", email) VALUES ('Big Zebra Solutions', 'Recently secured funding from Sony to create a AAA 3rd person adventure game. Their previous titles were minimalist art-as-games experiences.', 'Console', 'Maggie Shaw', 5, 1483960457, 07700900667, 'maggie.shaw@bigzebrasolutions.com')`,
+          `INSERT INTO bohemia.studio("studioName", description, platform, "studioHead", "addressFK", phone, "alternatePhone", email) VALUES ('Unhinged', 'A small team who create games using assets from 3D model repositories. Unhinged concentrate mainly on games that make use of their in-house Eagle Engine.', 'PC', 'Yasmin Singh', 6, 1614960928, 07700900299, 'yasmin.singh@unhinged.co.uk')`
+        ].join(';')
+      );
+
+      const res = await client.query('SELECT * FROM bohemia.studio');
+
+      expect(res.command).toBe('SELECT');
+      expect(res.rowCount).toBe(6);
+
+      res.rows.forEach((row) => {
+        expect(row).toHaveProperty('studioName');
+        expect(row).toHaveProperty('description');
+        expect(row).toHaveProperty('studioHead');
+        expect(row).toHaveProperty('addressFK');
+        expect(row).toHaveProperty('phone');
+        expect(row).toHaveProperty('alternatePhone');
+        expect(row).toHaveProperty('email');
+      });
     });
   });
 });
