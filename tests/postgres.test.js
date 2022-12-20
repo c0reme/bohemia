@@ -122,7 +122,7 @@ describe(config.host, () => {
           '"addressFK" bigint not null constraint studio_address_addressId_fk references bohemia.address',
           'phone bigint not null',
           '"alternatePhone" bigint not null',
-          "email varchar(255) not null constraint studio_email_is_email check (email like '%_@_%')"          
+          "email varchar(255) not null constraint studio_email_is_email check (email like '%_@_%')"
         ].join(',')});`
       );
 
