@@ -74,7 +74,7 @@ describe(config.host, () => {
           '"firstName" varchar(255) not null',
           '"lastName" varchar(255) not null',
           '"addressFK" bigint not null constraint employee_address_addressId_fk references bohemia.address',
-          'email varchar(255) not null',
+          "email varchar(255) not null constraint employee_email_is_email check (email like '%_@_%')",
           'phone int not null',
           '"alternatePhone" int not null',
           '"currentProject" varchar(255) not null',
@@ -122,7 +122,8 @@ describe(config.host, () => {
           '"addressFK" bigint not null constraint studio_address_addressId_fk references bohemia.address',
           'phone bigint not null',
           '"alternatePhone" bigint not null',
-          'email varchar(255) not null'          
+          'email varchar(255) not null constraint studio_email_is_email check (email like '%_@_%')',
+          'platform varchar(100) not null'
         ].join(',')});`
       );
 
