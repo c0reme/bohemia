@@ -18,7 +18,7 @@ create table if not exists bohemia.employee
     "firstname" varchar(255) not null,
     "lastname" varchar(255) not null,
     "addressfk" bigint not null constraint employee_address_addressId_fk references bohemia.address,
-    email varchar(255) not null,
+    email varchar(255) not null constraint employee_email_is_email check (email like \'%_@_%\'),
     username varchar(255) not null,
     phone int not null,
     "alternativePhone" int null,
@@ -46,10 +46,11 @@ create table if not exists bohemia.studio
     description varchar(1000) not null,
     platform varchar(255) not null,
     "studioHead" varchar(255) not null,
-    "addressFK" bigint not null constraint studio_address_addressId_fk references bohemia.address,
     phone bigint not null,
     "alternativePhone" bigint null,
-    email varchar(255) not null
+    email varchar(255) not null constraint studio_email_is_email check (email like \'%_@_%\'),
+    "addressFK" bigint not null constraint studio_address_addressId_fk references bohemia.address,  
+    platform varchar(255) not null
 );
 
 drop sequence if exists contract_seq;
