@@ -62,30 +62,6 @@ describe(config.host, () => {
       expect(res.rowCount).toBe(null);
     });
 
-    test('SEQUENCE THEN TABLE bohemia.employee', async () => {
-      const seq = await client.query('CREATE SEQUENCE employee_seq start 1 increment 1');
-
-      expect(seq.command).toBe('CREATE');
-      expect(seq.rowCount).toBe(null);
-
-      const res = await client.query(
-        `CREATE TABLE bohemia.employee (${[
-          '"employeeId" bigserial not null primary key',
-          '"firstName" varchar(255) not null',
-          '"lastName" varchar(255) not null',
-          '"addressFK" bigint not null constraint employee_address_addressId_fk references bohemia.address',
-          "email varchar(255) not null constraint employee_email_is_email check (email like '%_@_%')",
-          'phone int not null',
-          '"alternatePhone" int not null',
-          '"currentProject" varchar(255) not null',
-          '"pastProject" varchar(1000) not null'
-        ].join(',')});`
-      );
-
-      expect(res.command).toBe('CREATE');
-      expect(res.rowCount).toBe(null);
-    });
-
     test('SEQUENCE THEN TABLE bohemia.project', async () => {
       const seq = await client.query('CREATE SEQUENCE project_seq start 1 increment 1');
 
@@ -96,7 +72,7 @@ describe(config.host, () => {
         `CREATE TABLE bohemia.project (${[
           '"projectId" bigserial not null primary key',
           '"projectName" varchar(255) not null',
-          'description varchar(1000) not null',
+          'description varchar(1024) not null',
           'platform varchar(100) not null',
           'genre varchar(100) null'
         ].join(',')});`
@@ -116,35 +92,13 @@ describe(config.host, () => {
         `CREATE TABLE bohemia.studio (${[
           '"studioId" bigserial not null primary key',
           '"studioName" varchar(255) not null',
-          'description varchar(1000) not null',
-          'platform varchar(100) not null',
+          'description varchar(1024) not null',
           '"studioHead" varchar(255) not null',
-          '"addressFK" bigint not null constraint studio_address_addressId_fk references bohemia.address',
+          'email varchar(255) not null constraint "studio_email_is_email" check (email like \'%_@_%\')',
           'phone bigint not null',
-          '"alternatePhone" bigint not null',
-          "email varchar(255) not null constraint studio_email_is_email check (email like '%_@_%')"
-        ].join(',')});`
-      );
-
-      expect(res.command).toBe('CREATE');
-      expect(res.rowCount).toBe(null);
-    });
-
-    test('SEQUENCE THEN TABLE bohemia.employeeContract', async () => {
-      const seq = await client.query('CREATE SEQUENCE contract_seq start 1 increment 1');
-
-      expect(seq.command).toBe('CREATE');
-      expect(seq.rowCount).toBe(null);
-
-      const res = await client.query(
-        `CREATE TABLE bohemia.\"employeeContract\" (${[
-          '"contractId" bigserial not null primary key',
-          '"employeeFK" bigint not null constraint employeeContract_employee_employeeId_fk references bohemia.employee',
-          '"studioFK" bigint not null constraint employeeContract_studio_studioId_fk references bohemia.studio',
-          '"startDate" date default current_date not null',
-          '"endDate" date null',
-          'status varchar(50) not null',
-          '"currentRole" varchar(50) not null'
+          '"alternativePhone" bigint null',
+          '"addressFK" bigint not null constraint "studio_address_addressId_fk" references bohemia.address',
+          'platform varchar(100) not null'
         ].join(',')});`
       );
 
@@ -159,13 +113,57 @@ describe(config.host, () => {
       expect(seq.rowCount).toBe(null);
 
       const res = await client.query(
-        `CREATE TABLE bohemia.\"projectAssignment\" (${[
+        `CREATE TABLE bohemia."projectAssignment" (${[
           '"assignmentId" bigserial not null primary key',
-          '"employeeFK" bigint not null constraint projectAssignment_employee_employeeId_fk references bohemia.employee',
-          '"projectFK" bigint not null constraint projectAssignment_project_projectId_fk references bohemia.project',
+          '"projectFK" bigint not null constraint "projectAssignment_project_projectId_fk" references bohemia.project',
+          '"studioFK" bigint not null constraint "projectAssignment_studio_studioId_fk" references bohemia.studio',
+          'status varchar(50) not null'
+        ].join(',')});`
+      );
+
+      expect(res.command).toBe('CREATE');
+      expect(res.rowCount).toBe(null);
+    });
+
+    test('SEQUENCE THEN TABLE bohemia.employee', async () => {
+      const seq = await client.query('CREATE SEQUENCE employee_seq start 1 increment 1');
+
+      expect(seq.command).toBe('CREATE');
+      expect(seq.rowCount).toBe(null);
+
+      const res = await client.query(
+        `CREATE TABLE bohemia.employee (${[
+          `"employeeId" bigserial not null primary key`,
+          `"firstName" varchar(255) not null`,
+          `"lastName" varchar(255) not null`,
+          `email varchar(255) not null constraint "employee_email_is_email" check (email like '%_@_%')`,
+          `username varchar(255) not null unique`,
+          `phone bigint not null`,
+          `"addressFK" bigint not null constraint "employee_address_addressId_fk" references bohemia.address`,
+          `"currentProjectFK" varchar(255) not null constraint "employee_project_projectId_fk" references bohemia.project`,
+          `"pastProjects" varchar(1024) not null`
+        ].join(',')});`
+      );
+
+      expect(res.command).toBe('CREATE');
+      expect(res.rowCount).toBe(null);
+    });
+
+    test('SEQUENCE THEN TABLE bohemia.employeeContract', async () => {
+      const seq = await client.query('CREATE SEQUENCE contract_seq start 1 increment 1');
+
+      expect(seq.command).toBe('CREATE');
+      expect(seq.rowCount).toBe(null);
+
+      const res = await client.query(
+        `CREATE TABLE bohemia."employeeContract" (${[
+          '"contractId" bigserial not null primary key',
+          '"employeeFK" bigint not null constraint "employeeContract_employee_employeeId_fk" references bohemia.employee',
+          '"studioFK" bigint not null constraint "employeeContract_studio_studioId_fk" references bohemia.studio',
           '"startDate" date default current_date not null',
           '"endDate" date null',
-          'status varchar(50) not null'
+          'status varchar(50) not null',
+          '"currentRole" varchar(50) null'
         ].join(',')});`
       );
 
@@ -177,6 +175,79 @@ describe(config.host, () => {
   describe('INSERT', async () => {
     const client = new Client({ ...config, ssl: true });
     await client.connect();
+
+    test('INTO bohemia.address', async () => {
+      await client.query(
+        [
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('12 Main Street, Canterbury', 'CT1 1AA')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('2 Central Avenue, London', 'W1 1CJ')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('192 Bridge Road, London', 'SE2 2PQ')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('19 The Lanes, Portsmouth', 'PO1 1BA')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('55 Barnham Road, Gilford', 'BT63 6QU')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('Ela Mill, Cort St, Bury', 'BL9 7BW')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('31 Grange Road, Canterbury', 'CT9 2ND')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('31 Park Lane, Canterbury', 'CT13 0NF')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('80 North Street, Canterbury', 'CT14 9DL')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('29 Mill Lane, Canterbury', 'CT13 0NU')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('44 Richmond Road, Canterbury', 'CT6 5HH')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('30 Queens Road, Canterbury', 'CT11 9JW')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('37 Station Road, Canterbury', 'CT1 5LD')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('30 Church Lane, Canterbury', 'CT1 6AL')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('30 The Avenue, Canterbury', 'CT2 8HH')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('62 Stanley Road, Canterbury', 'CT5 1LH')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('15 High Street, Canterbury', 'CT1 0PT')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('43 Manchester Road, Canterbury', 'CT2 8HF')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('41 Main Street, Canterbury', 'CT5 1FT')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('3 Chester Road, Canterbury', 'CT5 2BA')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('64 Park Avenue, Canterbury', 'CT6 8TJ')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('80 Park Road, Canterbury', 'CT2 6BJ')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('2 New Street, Canterbury', 'CT1 6DR')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('8 Kingsway, Canterbury', 'CT1 9SD')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('57 Highfield Road, Canterbury', 'CT1 9XR')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('52 The Crescent, Canterbury', 'CT9 9TA')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('55 George Steet, Canterbury', 'CT2 1EH')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('2 Station Road, Canterbury', 'CT3 2HS')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('80 Mill Road, Canterbury', 'CT1 0RW')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('39 School Lane, Canterbury', 'CT1 0EN')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('43 Windsor Road, Canterbury', 'CT8 8HT')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('20 Church Lane, Canterbury', 'CT1 7EA')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('29 West Street, Canterbury', 'CT1 6DF')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('2 Sweetlove Place, Wingham', 'CT3 1BJ')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('1 Old Tree, Hoath', 'CT3 4LH')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('131 Bridge Street, Wye, Ashford', 'TN25 5DP')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('4 Beatrice Hills Close, Kennington, Ashford', 'TN24 9PQ')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('17 Frank Edinger Close, Kennington', 'TN24 9RB')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('10 Intelligence Walk, Ashford', 'TN23 3FE')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('8 Blossom Lane, Ashford', 'TN25 4GE')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('1 Thornlea, Ashford', 'TN23 3JX')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('52 Springwood Drive, Ashford', 'TN25 4GE')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('67 Church Road, Canterbury', 'CT1 9AP')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('24 Springfield Road, Canterbury', 'CT1 9DU')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('51 Manor Road, Canterbury', 'CT2 4LF')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('66 School Lane, Canterbury', 'CT1 9TH')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('16 South Street, Canterbury', 'CT1 1NU')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('52 London Road, Canterbury', 'CT1 1TZ')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('21 The Green, Canterbury', 'CT1 1GF')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('105 High Street, Wingham', 'CT3 1DE')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('78 The Crescent, Canterbury', 'CT1 7JE')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('8 York Road, Canterbury', 'CT2 6DP')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('44 St. John''s Road, Canterbury', 'CT3 1TL')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('17 Kingsway, Canterbury', 'CT2 7QR')`,
+          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('25 West Street, Canterbury', 'CT1 6JR')`
+        ].join(';')
+      );
+
+      const res = await client.query('SELECT * FROM bohemia.address');
+
+      expect(res.command).toBe('SELECT');
+      expect(res.rowCount).toBe(55);
+
+      res.rows.forEach((row) => {
+        expect(row).toHaveProperty('addressId');
+        expect(row).toHaveProperty('addressLine');
+        expect(row).toHaveProperty('postCode');
+      });
+    });
 
     test('INTO bohemia.project', async () => {
       await client.query(
@@ -242,22 +313,234 @@ describe(config.host, () => {
       });
     });
 
-    test('INTO bohemia.address', async () => {
+    test('INTO bohemia.employee', async () => {
       await client.query(
         [
-          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('12 Main Street, Canterbury', 'CT1 1AA')`,
-          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('2 Central Avenue, London', 'W1 1CJ')`,
-          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('192 Bridge Road, London', 'SE2 2PQ')`,
-          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('19 The Lanes, Portsmouth', 'PO1 1BA')`,
-          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('55 Barnham Road, Gilford', 'BT63 6QU')`,
-          `INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('Ela Mill, Cort St, Bury', 'BL9 7BW')`
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Jessi', 'Winstone', 'JessiWinstone@fuzzsheep.com', 'jwinstone0', '07700900171', 7, 1, 'Learning Letters with Leo, Mathematics with Matilda, Meeting Meerkats')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Gottfried', 'Dallon', 'GottfriedDallon@fuzzysheep.com', 'gdallon1', '07700900543', 8, 1, 'Learning Letters with Leo, Mathematics with Matilda, All About Huskies with Loki')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Sally', 'Gentzsch', 'SallyGentzsch@fuzzysheep.com', 'sgentzsch2', '07700900516', 9, 8, 'Learning Letters with Leo, Drawing the Desert, All About Huskies with Loki, Meeting Meerkats')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Lucio', 'Spiaggia', 'LucioSpiaggia@fuzzysheep.com', 'lspiaggia3', '07700900243', 10, 8, 'Learning Letters with Leo, Drawing the Desert, Meeting Meerkats')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Lombard', 'Challener', 'LombardChallener@fuzzysheep.com', 'lchallener4', '07700900449', 11, null, 'Drawing the Desert, All About Huskies with Loki')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Ardyce', 'Hesey', 'ArdyceHesey@egoapps.co.uk', 'ahesey5', '07700900017', 12, 14, 'Mood, Mood 2, Final Mood')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Catha', 'Engall', 'CathaEngall@egoapps.co.uk', 'cengall6', '07700900418', 13, 14, 'Mood, Mood 2, Final Mood')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Flori', 'O'' Molan', 'FloriO''Molan@egoapps.co.uk', 'fomolan7', '01632960854', 14, 14, 'Mood, Mood 2, Final Mood')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Freddie', 'Huetson', 'FreddieHuetson@egoapps.co.uk', 'fhuetson8', '07700900263', 15, 14, 'Mood, Mood 2, Final Mood')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Dermot', 'Truss', 'DermotTruss@egoapps.co.uk', 'dtruss9', '07700900125', 16, 14, 'Mood, Mood 2, Final Mood')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Francoise', 'Rishbrook', 'FrancoiseRishbrook@egoapps.co.uk', 'frishbrooka', '07700900787', 17, 14, 'Final Mood, Ragged, Tsunami')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Giuditta', 'Cubbin', 'GiudittaCubbin@egoapps.co.uk', 'gcubbinb', '01632960731', 18, 14, 'Tsunami, Tsunami Conflict')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Rodie', 'Lukins', 'RodieLukins@egoapps.co.uk', 'rlukinsc', '07700900879', 19, 14, null)`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Harman', 'Berriball', 'HarmanBerriball@egoapps.co.uk', 'hberriballd', '07700900879', 20, 14, null)`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Halsy', 'Cubbino', 'HalsyCubbino@egoapps.co.uk', 'hcubbinoe', '07700900571', 21, 14, 'Tsunami, Tsunami Conflict')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Lazaro', 'Bougourd', 'LazaroBougourd@egoapps.co.uk', 'lbougourdf', '07700900008', 22, 14, 'Tsunami, Tsunami Conflict')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Tulley', 'Fearn', 'TulleyFearn@egoapps.co.uk', 'tfearng', '07700900034', 23, null, 'Mood, Final Mood, Ragged, Tsunami Conflict')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Stanfield', 'Gethen', 'StanfieldGethen@egoapps.co.uk', 'sgethenh', '07700900312', 24, null, 'Mood, Final Mood, Ragged, Tsunami Conflict')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Betta', 'Storre', 'BettaStorre@egoapps.co.uk', 'bstorrei', '07700900446', 25, null, 'Mood, Final Mood, Ragged, Tsunami Conflict')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Adrian', 'Cockson', 'AdrianCockson@dattebayo.com', 'acocksonj', '07700900922', 26, 17, null)`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Trixi', 'Ioselev', 'TrixiIoselev@dattebayo.com', 'tioselevk', '07700900416', 27, 17, null)`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Hesther', 'Wimpey', 'HestherWimpey@dattebayo.com', 'hwimpeyl', '01632960694', 28, 17, 'Feng Shui Simulator')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Dannel', 'Hollington', 'DannelHollington@dattebayo.com', 'dhollingtonm', '07700900519', 29, 17, 'Feng Shui Simulator, Feng Shui Simulator: Yasai')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Brendon', 'Adamsson', 'BrendonAdamsson@dattebayo.com', 'badamssonn', '07700900702', 30, null, 'Feng Shui Simulator, Feng Shui Simulator: Shedded')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Evanne', 'Scholig', 'EvanneScholig@dattebayo.com', 'escholigo', '01632960826', 31, 18, null)`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Byrom', 'Tassell', 'ByromTassell@dattebayo.com', 'btassellp', '07700900050', 32, 18, null)`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Felike', 'Malt', 'FelikeMalt@dattebayo.com', 'fmaltq', '07700900203', 33, 18, 'Feng Shui Simulator')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Jenny', 'Major', 'JennyMajor@dattebayo.com', 'jmajorr', '07700900347', 34, 18, 'Feng Shui Simulator, Feng Shui Simulator: Yasai')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Zebedee', 'Seyler', 'ZebedeeSeyler@dattebayo.com', 'zseylers', '07700900172', 35, 22, 'Feng Shui Simulator, Feng Shui Simulator: Shedded')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Jacinthe', 'Oxshott', 'JacintheOxshott@dattebayo.com', 'joxshottt', '07700900827', 36, 22, 'Feng Shui Simulator, Feng Shui Simulator: Shedded')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Sheryl', 'Neve', 'SherylNeve@dattebayo.com', 'sneveu', '07700900952', 37, 23, 'Feng Shui Simulator, Feng Shui Simulator: Yasai')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Corrie', 'Michin', 'CorrieMichin@dattebayo.com', 'cmichinv', '07700900283', 38, 23, null)`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Elbert', 'Tyhurst', 'ElbertTyhurst@dattebayo.com', 'etyhurstw', '07700900692', 39, 23, null)`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Susannah', 'Mallindine', 'SusannahMallindine@dattebayo.com', 'smallindinex', '07700900013', 40, null, 'Feng Shui Simulator, Feng Shui Simulator: Shedded, Feng Shui Simulator: Yasai')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Tabbi', 'Malinowski', 'TabbiMalinowski@dojokun.net', 'tmalinowskiy', '07700900923', 41, 27, 'Speed of Sound, Earthendion')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Phelia', 'Faustin', 'PheliaFaustin@dojokun.net', 'pfaustinz', '07700900817', 42, 27, null)`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Raul', 'Hillock', 'RaulHillock@dojokun.net', 'rhillock10', '01632960616', 43, 27, 'Earthendion')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Nannie', 'Loader', 'NannieLoader@dojokun.net', 'nloader11', '07700900910', 44, 27, 'Heap Destruction')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Cornelle', 'Pouton', 'CornellePouton@dojokun.net', 'cpouton12', '07700900580', 45, null, 'Heap Destruction, Speed of Sound, Earthendion')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Ikey', 'Bowry', 'IkeyBowry@bigzebrasolutions.com', 'ibowry13', '07700900604', 46, 28, 'Light Hearts, Quest, War''s Star: Farmers Strike Back')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Brook', 'Dunan', 'BrookDunan@bigzebrasolutions.com', 'bdunan14', '01632960546', 47, 31, 'Light Hearts, Quest, War''s Star: Farmers Strike Back')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Yalonda', 'Haswall', 'YalondaHaswall@bigzebrasolutions.com', 'yhaswall15', '07700900544', 48, 32, null)`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Celina', 'Dulton', 'CelinaDulton@bigzebrasolutions.com', 'cdulton16', '07700900341', 49, null, 'Quest, War''s Star: Farmers Strike Back')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Valencia', 'Hadrill', 'ValenciaHadrill@bigzebrasolutions.com', 'vhadrill17', '07700900408', 50, 31, 'Quest')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Ashla', 'Godding', 'AshlaGodding@unhinged.co.uk', 'agodding18', '07700900217', 51, 41, 'Kangaroo Simulator, Recognised Player''s Wargrounds (RPWG), Queen of Combatants XV')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Rikki', 'Tidmarsh', 'RikkiTidmarsh@unhinged.co.uk', 'rtidmarsh19', '07700900113', 52, 42, 'Hunt down the Leemar, Pillowings')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Bobbie', 'Edlyn', 'BobbieEdlyn@unhinged.co.uk', 'bedlyn1a', '07700900351', 53, 43, 'Running Osterich, Pillowings')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Luci', 'Cometson', 'LuciCometson@unhinged.co.uk', 'lcometson1b', '01632960779', 54, 44, null)`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Elana', 'Flipek', 'ElanaFlipek@unhinged.co.uk', 'eflipek1c', '07700900170', 55, 41, 'Hunt down the Leemar, Running Osterich')`,
+          `INSERT INTO bohemia.employee("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Leola', 'Spall', 'LeolaSpall@unhinged.co.uk', 'lspall6v', '07700900693', 56, 42, null)`
         ].join(';')
       );
 
-      const res = await client.query('SELECT * FROM bohemia.address');
+      const res = await client.query(`SELECT * FROM bohemia."employee"`);
+      expect(res.rows).toHaveLength(51);
+
+      res.rows.forEach((row) => {
+        expect(row).toHaveProperty('employeeId');
+        expect(row).toHaveProperty('firstName');
+        expect(row).toHaveProperty('lastName');
+        expect(row).toHaveProperty('email');
+        expect(row).toHaveProperty('username');
+        expect(row).toHaveProperty('phone');
+        expect(row).toHaveProperty('addressFK');
+        expect(row).toHaveProperty('currentProjectFK');
+        expect(row).toHaveProperty('pastProjects');
+      });
+    });
+
+    test('INTO bohemia.projectAssignment', async () => {
+      await client.query(
+        [
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (1, 1, 'In Development')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (2, 1, 'Development Cancelled')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (3, 1, 'Published')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (4, 1, 'Published')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (5, 1, 'Published')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (6, 1, 'In Development')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (7, 1, 'Development Cancelled')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (8, 1, 'Pitching')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (9, 2, 'Published')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (10, 2, 'Published')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (11, 2, 'Published')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (12, 2, 'Development Cancelled')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (13, 2, 'Published')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (14, 2, 'In Development')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (15, 2, 'Published')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (16, 2, 'Cancelled')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (17, 3, 'Pitching')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (18, 3, 'Pitching')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (19, 3, 'Published')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (20, 3, 'Published')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (21, 3, 'Cancelled')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (22, 3, 'In Development')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (23, 3, 'In Development')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (24, 4, 'Published')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (25, 4, 'Cancelled')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (26, 4, 'Published')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (27, 4, 'In Development')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (28, 5, 'In Development')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (29, 5, 'Published')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (30, 5, 'Published')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (31, 5, 'Pitching')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (32, 5, 'Pitching')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (33, 5, 'Development Paused')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (34, 5, 'Cancelled')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (35, 6, 'Published')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (36, 6, 'Published')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (37, 6, 'Cancelled')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (38, 6, 'Published')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (39, 6, 'Published')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (40, 6, 'Published')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (41, 6, 'In Development')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (42, 6, 'In Development')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (43, 6, 'Pitching')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (44, 6, 'Pitching')`,
+          `INSERT INTO bohemia."projectAssignment" ("projectFK", "studioFK", status) VALUES (45, 6, 'Published')`
+        ].join(';')
+      );
+
+      const res = await client.query(`SELECT * FROM bohemia."projectAssignment"`);
+      expect(res.rows).toHaveLength(45);
+
+      res.rows.forEach((row) => {
+        expect(row).toHaveProperty('projectFK');
+        expect(row).toHaveProperty('studioFK');
+        expect(row).toHaveProperty('status');
+      });
+    });
+
+    test('INTO bohemia.employeeContract', async () => {
+      await client.query(
+        [
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (1, 1, '08/09/2020', null, 'Employed', 'Games Design')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (2, 1, '18/10/2012', null, 'Employed', 'Software Developer')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (3, 1, '03/09/2008', null, 'Employed', 'Producer')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (4, 1, '20/09/2021', null, 'Employed', 'Sound Engineer')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (5, null, '26/08/2021', '05/04/2022', 'Redundant', null)`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (6, 2, '18/09/1999', null, 'Employed', 'Games Design')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (7, 2, '26/08/2000', null, 'Employed', 'Level Design')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (8, 2, '21/10/1999', null, 'Employed', 'Systems Design')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (9, 2, '09/10/2000', null, 'Employed', 'Producer')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (10, 2, '24/09/1998', null, 'Employed', 'Assistant Producer')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (11, 2, '03/10/2012', null, 'Employed', 'Software Developer')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (12, 2, '19/10/2021', null, 'Employed', 'Quality and Assurance')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (13, 2, '20/09/2021', null, 'Employed', 'Games Design')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (14, 2, '25/08/2021', null, 'Employed', 'Sound Engineer')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (15, 2, '22/08/2021', null, 'Employed', 'Software Developer')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (16, 2, '24/08/2015', null, 'Employed', 'Quality and Assurance')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (17, null, '27/09/2015', '01/09/2022', 'Resigned', null)`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (18, null, '11/10/2010', '01/09/2022', 'Resigned', null)`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (19, null, '28/09/2020', '05/09/2022', 'Resigned', null)`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (20, 3, '25/08/2007', null, 'Employed', 'Sound Engineer')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (21, 3, '09/09/2001', null, 'Employed', 'Quality and Assurance')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (22, 3, '25/08/2007', null, 'Employed', 'Quality and Assurance')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (23, 3, '14/10/2020', null, 'Employed', 'Games Design')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (24, null, '20/10/2020', '13/11/2021', 'Resigned', null)`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (25, 3, '21/08/2021', null, 'Employed', 'Producer')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (26, 3, '26/10/2021', null, 'Employed', 'Assistant Producer')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (27, 3, '20/09/2016', null, 'Employed', 'Systems Design')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (28, 3, '19/09/2016', null, 'Employed', 'Software Developer')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (29, 3, '19/09/2016', null, 'Employed', 'Software Developer')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (30, 3, '14/10/2019', null, 'Employed', 'Software Developer')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (31, 3, '25/08/2019', null, 'Employed', 'Games Design')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (32, 3, '12/10/2020', null, 'Employed', 'Producer')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (33, 3, '02/09/2021', null, 'Employed', 'Quality and Assurance')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (34, null, '28/08/2015', '30/05/2022', 'Resigned', null)`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (35, 4, '18/10/2020', null, 'Employed', 'Games Design')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (36, 4, '19/10/2020', null, 'Employed', 'Sound Engineer')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (37, 4, '06/10/2021', null, 'Employed', 'Producer')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (38, 4, '09/10/2021', null, 'Employed', 'Software Developer')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (39, null, '12/09/2011', '30/05/2022', 'Retired', null)`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (40, 5, '14/10/2015', null, 'Employed', 'Producer')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (41, 5, '31/10/2015', null, 'Employed', 'Assistant Producer')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (42, 5, '09/10/2015', null, 'Employed', 'Games Design')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (43, 5, '18/09/2018', null, 'Employed', 'Systems Design')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (44, 5, '27/08/2021', null, 'Employed', 'Sound Engineer')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (45, 6, '12/10/2007', null, 'Employed', 'Games Design')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (46, 6, '09/10/2021', null, 'Employed', 'Games Design')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (47, 6, '08/09/2010', null, 'Employed', 'Games Design')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (48, 6, '07/10/2011', null, 'Employed', 'Software Developer')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (49, 6, '05/09/2011', null, 'Employed', 'Producer')`,
+          `INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (50, 6, '22/08/2014', null, 'Employed', 'Quality and Assurance')`
+        ].join(';')
+      );
+
+      const res = await client.query(`SELECT * FROM bohemia."projectAssignment"`);
+      expect(res.rows).toHaveLength(50);
+
+      res.rows.forEach((row) => {
+        expect(row).toHaveProperty('projectFK');
+        expect(row).toHaveProperty('employeeFK');
+        expect(row).toHaveProperty('startDate');
+        expect(row).toHaveProperty('endDate');
+        expect(row).toHaveProperty('status');
+        expect(row).toHaveProperty('currentRole');
+      });
+    });
+
+    test('INTO bohemia.studio', async () => {
+      await client.query(
+        [
+          `INSERT INTO bohemia.studio("studioName", description, platform, "studioHead", "addressFK", phone, "alternatePhone", email) VALUES ('Fuzzy Sheep Studios', 'Specialises in porting games from Bohemia Group studios to Android and iOS platforms including smartphones and tablets.', 'Mobile', 'William Butcher', 1, 1227555666, 07700900445, 'will.butcher@fuzzysheep.com')`,
+          `INSERT INTO bohemia.studio("studioName", description, platform, "studioHead", "addressFK", phone, "alternatePhone", email) VALUES ('Ego Applications', 'A software studio that became famous for Mood, the grandfather of First Person Shooter games, released in the 1990s.', 'PC', 'Annie January', 2, 8006133589, 07700900678, 'annie.january@egoapps.co.uk' )`,
+          `INSERT INTO bohemia.studio("studioName", description, platform, "studioHead", "addressFK", phone, "alternatePhone", email) VALUES ('Dattebayo!', 'A UK based developer who focuses on translating and releasing Japanese anime-based videogames for the western audience.' , 'Console', 'Ashleigh Cohen', 3, 1614960267, 07700900321, 'ashleigh.cohan@dattebayo.com')`,
+          `INSERT INTO bohemia.studio("studioName", description, platform, "studioHead", "addressFK", phone, "alternatePhone", email) VALUES ('DojoKun', 'Known for their creative sandbox games that use voxels instead of polygons with randomly generated environments.', 'PC', 'Reggie Franklin', 4, 2011151612, 07700900175, 'reggie.franklin@dojokun.net')`,
+          `INSERT INTO bohemia.studio("studioName", description, platform, "studioHead", "addressFK", phone, "alternatePhone", email) VALUES ('Big Zebra Solutions', 'Recently secured funding from Sony to create a AAA 3rd person adventure game. Their previous titles were minimalist art-as-games experiences.', 'Console', 'Maggie Shaw', 5, 1483960457, 07700900667, 'maggie.shaw@bigzebrasolutions.com')`,
+          `INSERT INTO bohemia.studio("studioName", description, platform, "studioHead", "addressFK", phone, "alternatePhone", email) VALUES ('Unhinged', 'A small team who create games using assets from 3D model repositories. Unhinged concentrate mainly on games that make use of their in-house Eagle Engine.', 'PC', 'Yasmin Singh', 6, 1614960928, 07700900299, 'yasmin.singh@unhinged.co.uk')`
+        ].join(';')
+      );
+
+      const res = await client.query('SELECT * FROM bohemia.studio');
 
       expect(res.command).toBe('SELECT');
       expect(res.rowCount).toBe(6);
+
+      res.rows.forEach((row) => {
+        expect(row).toHaveProperty('studioName');
+        expect(row).toHaveProperty('description');
+        expect(row).toHaveProperty('studioHead');
+        expect(row).toHaveProperty('addressFK');
+        expect(row).toHaveProperty('phone');
+        expect(row).toHaveProperty('alternatePhone');
+        expect(row).toHaveProperty('email');
+      });
     });
 
     test('INTO bohemia.studio', async () => {

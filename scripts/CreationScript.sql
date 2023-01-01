@@ -32,7 +32,7 @@ create table if not exists bohemia.project
 (
     "projectId" bigserial not null primary key,
     "projectName" varchar(255) not null,
-    description varchar(255) not null,
+    description varchar(1024) not null,
     platform varchar(100) not null,
     genre varchar(100) null
 );
@@ -52,6 +52,31 @@ create table if not exists bohemia.studio
     platform varchar(255) not null
 );
 
+drop sequence if exists assignment_seq;
+create sequence assignment_seq start 1 increment 1;
+create table if not exists bohemia."projectAssignment"
+(
+    "assignmentId" bigserial not null primary key,
+    "projectFK" bigint not null constraint "projectAssignment_project_projectId_fk" references bohemia.project,
+    "studioFK" bigint not null constraint "projectAssignment_studio_studioId_fk" references bohemia.studio,
+    status varchar(50) not null
+);
+
+drop sequence if exists employee_seq;
+create sequence employee_seq start 1 increment 1;
+create table if not exists bohemia.employee
+(
+    "employeeId" bigserial not null primary key,
+    "firstName" varchar(255) not null,
+    "lastName" varchar(255) not null,
+    email varchar(255) not null constraint "employee_email_is_emai" check (email like '%_@_%'),
+    username varchar(255) not null unique,
+    phone bigint not null,
+    "addressFK" bigint not null constraint "employee_address_addressId_fk" references bohemia.address,
+    "currentProjectFK" varchar(255) not null constraint "employee_project_projectId_fk" references bohemia.project,
+    "pastProjects" varchar(1024) not null
+);
+
 drop sequence if exists contract_seq;
 create sequence contract_seq start 1 increment 1;
 create table if not exists bohemia."employeeContract"
@@ -62,17 +87,5 @@ create table if not exists bohemia."employeeContract"
     "startDate" date default current_date not null,
     "endDate" date null,
     status varchar(50) not null,
-    "currentRole" varchar(50) not null
-);
-
-drop sequence if exists assignment_seq;
-create sequence assignment_seq start 1 increment 1;
-create table if not exists bohemia."projectAssignment"
-(
-    "assignmentId" bigserial not null primary key,
-    "projectFK" bigint not null constraint "projectAssignment_project_projectId_fk" references bohemia.project,
-    "studioFK" bigint not null constraint "projectAssignment_studio_studioId_fk" references bohemia.studio,
-    "startDate" date default current_date not null,
-    "endDate" date null,
-    status varchar(50) not null
+    "currentRole" varchar(50) null
 );
