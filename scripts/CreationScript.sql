@@ -1,5 +1,4 @@
-create schema
-if not exists bohemia;
+create schema if not exists bohemia;
 
 drop sequence if exists address_seq;
 create sequence address_seq start 1 increment 1;
@@ -8,22 +7,6 @@ create table if not exists bohemia.address
     "addressId" bigserial not null primary key,
     "addressLine" varchar(255) not null,
     "postCode" varchar(255) not null
-);
-
-drop sequence if exists employee_seq;
-create sequence employee_seq start 1 increment 1;
-create table if not exists bohemia.employee
-(
-    "employeeid" bigserial not null primary key,
-    "firstname" varchar(255) not null,
-    "lastname" varchar(255) not null,
-    "addressfk" bigint not null constraint employee_address_addressId_fk references bohemia.address,
-    email varchar(255) not null constraint employee_email_is_email check (email like '%_@_%'),
-    username varchar(255) not null,
-    phone int not null,
-    "alternativePhone" int null,
-    "currentProject" varchar(255) not null,
-    "pastProjects" varchar(255) not null
 );
 
 drop sequence if exists project_seq;
@@ -73,8 +56,8 @@ create table if not exists bohemia.employee
     username varchar(255) not null unique,
     phone bigint not null,
     "addressFK" bigint not null constraint "employee_address_addressId_fk" references bohemia.address,
-    "currentProjectFK" varchar(255) not null constraint "employee_project_projectId_fk" references bohemia.project,
-    "pastProjects" varchar(1024) not null
+    "currentProjectFK" bigint null constraint "employee_project_projectId_fk" references bohemia.project,
+    "pastProjects" varchar(1024) null
 );
 
 drop sequence if exists contract_seq;
@@ -83,7 +66,7 @@ create table if not exists bohemia."employeeContract"
 (
     "contractId" bigserial not null primary key,
     "employeeFK" bigint not null constraint "employeeContract_employee_employeeId_fk" references bohemia.employee,
-    "studioFK" bigint not null constraint "employeeContract_studio_studioId_fk" references bohemia.studio,
+    "studioFK" bigint null constraint "employeeContract_studio_studioId_fk" references bohemia.studio,
     "startDate" date default current_date not null,
     "endDate" date null,
     status varchar(50) not null,
