@@ -52,7 +52,7 @@ create table if not exists bohemia.employee
     "employeeId" bigserial not null primary key,
     "firstName" varchar(255) not null,
     "lastName" varchar(255) not null,
-    email varchar(255) not null constraint "employee_email_is_emai" check (email like '%_@_%'),
+    email varchar(255) not null constraint "employee_email_is_email" check (email like '%_@_%'),
     username varchar(255) not null unique,
     phone bigint not null,
     "addressFK" bigint not null constraint "employee_address_addressId_fk" references bohemia.address,

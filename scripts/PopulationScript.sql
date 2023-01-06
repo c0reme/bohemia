@@ -1,4 +1,3 @@
-/* Insert data into the bohemia.project table below */
 INSERT INTO bohemia.project ("projectName", description, platform, genre) VALUES ('Exploring Numbers with Shaun', 'Learn how to add, subtract and multiply with the help of a famous sheep.', 'Mobile', 'Edutainment');
 INSERT INTO bohemia.project ("projectName", description, platform, genre) VALUES ('Learning Letters with Leo', 'Leo the lion helps your child with their phonics and pronunciations.', 'Mobile', 'Edutainment');
 INSERT INTO bohemia.project ("projectName", description, platform, genre) VALUES ('Mathematics with Matilda', 'Use fun games with Matilda and learn multiplication and long division.', 'Mobile', 'Edutainment');
@@ -45,7 +44,6 @@ INSERT INTO bohemia.project ("projectName", description, platform, genre) VALUES
 INSERT INTO bohemia.project ("projectName", description, platform, genre) VALUES ('House of the Ned', 'Arcade-style lightgun game set within a mansion filled with monsters based on a certain Mr. Flanders.', 'PC', null);
 INSERT INTO bohemia.project ("projectName", description, platform, genre) VALUES ('Pillowings', 'Arcade-style lightgun game set within a mansion filled with monsters based on a certain Mr. Flanders.', 'PC', null);
 
-/* Insert data into the bohemia.address table below */
 INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('12 Main Street, Canterbury', 'CT1 1AA');
 INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('2 Central Avenue, London', 'W1 1CJ');
 INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('192 Bridge Road, London', 'SE2 2PQ');
@@ -73,7 +71,7 @@ INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('2 New Street, C
 INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('8 Kingsway, Canterbury', 'CT1 9SD');
 INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('57 Highfield Road, Canterbury', 'CT1 9XR');
 INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('52 The Crescent, Canterbury', 'CT9 9TA');
-INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('55 George Steet, Canterbury', 'CT2 1EH');
+INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('55 George Street, Canterbury', 'CT2 1EH');
 INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('2 Station Road, Canterbury', 'CT3 2HS');
 INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('80 Mill Road, Canterbury', 'CT1 0RW');
 INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('39 School Lane, Canterbury', 'CT1 0EN');
@@ -103,7 +101,6 @@ INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('44 St. John''s 
 INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('17 Kingsway, Canterbury', 'CT2 7QR');
 INSERT INTO bohemia.address ("addressLine", "postCode") VALUES ('25 West Street, Canterbury', 'CT1 6JR');
 
-/* Insert data into the bohemia.studio table below */
 INSERT INTO bohemia.studio("studioName", description, platform, "studioHead", "addressFK", phone, "alternativePhone", email) VALUES ('Fuzzy Sheep Studios', 'Specialises in porting games from Bohemia Group studios to Android and iOS platforms including smartphones and tablets.', 'Mobile', 'William Butcher', 1, 1227555666, 07700900445, 'will.butcher@fuzzysheep.com');
 INSERT INTO bohemia.studio("studioName", description, platform, "studioHead", "addressFK", phone, "alternativePhone", email) VALUES ('Ego Applications', 'A software studio that became famous for Mood, the grandfather of First Person Shooter games, released in the 1990s.', 'PC', 'Annie January', 2, 8006133589, 07700900678, 'annie.january@egoapps.co.uk' );
 INSERT INTO bohemia.studio("studioName", description, platform, "studioHead", "addressFK", phone, "alternativePhone", email) VALUES ('Dattebayo!', 'A UK based developer who focuses on translating and releasing Japanese anime-based videogames for the western audience.' , 'Console', 'Ashleigh Cohen', 3, 1614960267, 07700900321, 'ashleigh.cohan@dattebayo.com');
@@ -111,7 +108,6 @@ INSERT INTO bohemia.studio("studioName", description, platform, "studioHead", "a
 INSERT INTO bohemia.studio("studioName", description, platform, "studioHead", "addressFK", phone, "alternativePhone", email) VALUES ('Big Zebra Solutions', 'Recently secured funding from Sony to create a AAA 3rd person adventure game. Their previous titles were minimalist art-as-games experiences.', 'Console', 'Maggie Shaw', 5, 1483960457, 07700900667, 'maggie.shaw@bigzebrasolutions.com');
 INSERT INTO bohemia.studio("studioName", description, platform, "studioHead", "addressFK", phone, "alternativePhone", email) VALUES ('Unhinged', 'A small team who create games using assets from 3D model repositories. Unhinged concentrate mainly on games that make use of their in-house Eagle Engine.', 'PC', 'Yasmin Singh', 6, 1614960928, 07700900299, 'yasmin.singh@unhinged.co.uk');
 
-/* Insert data into the bohemia.employee table below */
 INSERT INTO bohemia.employee ("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Jessi', 'Winstone', 'JessiWinstone@fuzzsheep.com', 'jwinstone0', '07700900171', 7, 1, 'Learning Letters with Leo, Mathematics with Matilda, Meeting Meerkats');
 INSERT INTO bohemia.employee ("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Gottfried', 'Dallon', 'GottfriedDallon@fuzzysheep.com', 'gdallon1', '07700900543', 8, 1, 'Learning Letters with Leo, Mathematics with Matilda, All About Huskies with Loki');
 INSERT INTO bohemia.employee ("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Sally', 'Gentzsch', 'SallyGentzsch@fuzzysheep.com', 'sgentzsch2', '07700900516', 9, 8, 'Learning Letters with Leo, Drawing the Desert, All About Huskies with Loki, Meeting Meerkats');
@@ -163,7 +159,6 @@ INSERT INTO bohemia.employee ("firstName", "lastName", email, username, phone, "
 INSERT INTO bohemia.employee ("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Elana', 'Flipek', 'ElanaFlipek@unhinged.co.uk', 'eflipek1c', '07700900170', 55, 41, 'Hunt down the Leemar, Running Osterich');
 INSERT INTO bohemia.employee ("firstName", "lastName", email, username, phone, "addressFK", "currentProjectFK", "pastProjects") VALUES ('Leola', 'Spall', 'LeolaSpall@unhinged.co.uk', 'lspall6v', '07700900693', 56, 42, null);
 
-/* Insert data into the bohemia.employeeContract table below */
 INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (1, 1, '2020/09/08', null, 'Employed', 'Games Design');
 INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (2, 1, '2012/10/18', null, 'Employed', 'Software Developer');
 INSERT INTO bohemia."employeeContract" ("employeeFK", "studioFK", "startDate", "endDate", status, "currentRole") VALUES (3, 1, '2008/09/03', null, 'Employed', 'Producer');
